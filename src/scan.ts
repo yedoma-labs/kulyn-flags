@@ -30,9 +30,10 @@ export function findFlagKeysInSource(
 
 	if (functions.length > 0) {
 		const alternation = functions.map(escapeRegExp).join("|");
-		// Only the call form. The literal must be closed by the same quote character.
+		// The literal must be closed by the same quote and be a whole argument, so that
+		// `isEnabled("a" + b)` is not read as the key "a".
 		const callPattern = new RegExp(
-			String.raw`\b(?:${alternation})\s*\(\s*(["'])([^"'\\\r\n]{1,${MAX_LITERAL_LENGTH}})\1`,
+			String.raw`\b(?:${alternation})\s*\(\s*(["'])([^"'\\\r\n]{1,${MAX_LITERAL_LENGTH}})\1(?=\s*[,)])`,
 			"g",
 		);
 		for (const match of code.matchAll(callPattern)) {
