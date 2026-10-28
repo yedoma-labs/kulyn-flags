@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/yedoma-labs/kulyn-flags/compare/v1.0.1...v1.0.2) (2026-10-28)
+
+
+### Bug Fixes
+
+* **scan:** recognize optional-chaining calls and flags access ([f92e034](https://github.com/yedoma-labs/kulyn-flags/commit/f92e0344e57d75473b474f847f8fb4abe2821a14))
+
 ## [1.0.1](https://github.com/yedoma-labs/kulyn-flags/compare/v1.0.0...v1.0.1) (2026-10-28)
 
 
