@@ -10,7 +10,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-6-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> **kulyn** (*kulyn*) — Yakutian (Sakha) for (noch zu bestätigen)
+> **кулун** (*kulyn*) — Yakutian (Sakha) for "foal"
 
 A flag register with owners and expiry dates, plus hygiene checks you run in CI.
 It answers the question that runtime flag SDKs leave open: **who owns this flag, and is it safe to delete?**
@@ -159,6 +159,7 @@ defineFlags(flags, {
 
 - calls with a string literal as the first argument: `isEnabled("key")`, `getFlag('key')`, `client.isEnabled("key", { fallback: false })`
 - property access: `flags.beta`, `flags["new-ui"]`
+- the optional-chaining forms of both: `isEnabled?.("key")`, `flags?.beta`, `flags?.["new-ui"]`
 
 It ignores text in comments, in template literals (`` `isEnabled("x")` `` is not a call) and in quoted strings (`"flags.old"` is text, not a use). It does scan calls inside `${...}` placeholders. Template literals used as call arguments, such as ``getFlag(`key`)``, are not matched. Keys must be written as literals to be found.
 

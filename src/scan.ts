@@ -12,6 +12,7 @@ const MAX_LITERAL_LENGTH = 100;
  * - `isEnabled("key")`, `getFlag('key')` and the other configured function names
  * - `flags.key` (identifier-style keys only)
  * - `flags["key"]`
+ * - the optional-chaining forms `isEnabled?.("key")`, `flags?.key` and `flags?.["key"]`
  *
  * Text in comments, and template literals (backticks), are ignored, including `${...}`
  * placeholders in template literals that are not code. Calls inside `${...}` are still scanned.
@@ -35,7 +36,7 @@ export function findFlagKeysInSource(
 		// The literal must be closed by the same quote and be a whole argument, so that
 		// `isEnabled("a" + b)` is not read as the key "a".
 		const callPattern = new RegExp(
-			String.raw`\b(?:${alternation})\s*\(\s*(["'])([^"'\\\r\n]{1,${MAX_LITERAL_LENGTH}})\1(?=\s*[,)])`,
+			String.raw`\b(?:${alternation})\s*(?:\?\.\s*)?\(\s*(["'])([^"'\\\r\n]{1,${MAX_LITERAL_LENGTH}})\1(?=\s*[,)])`,
 			"g",
 		);
 		for (const match of code.matchAll(callPattern)) {
@@ -51,7 +52,7 @@ export function findFlagKeysInSource(
 
 	// `flags.key` is only matched for identifier-like keys, and not for method calls like
 	// `flags.get(` or chained access like `flags.a.b`.
-	for (const match of code.matchAll(/\bflags\.([a-z][a-z0-9]*)(?![\w.-]|\s*\()/g)) {
+	for (const match of code.matchAll(/\bflags(?:\?\.|\.)([a-z][a-z0-9]*)(?![\w.-]|\?\.|\s*\()/g)) {
 		if (isInRanges(stringRanges, match.index)) {
 			continue;
 		}
@@ -62,7 +63,7 @@ export function findFlagKeysInSource(
 	}
 
 	const bracketPattern = new RegExp(
-		String.raw`\bflags\s*\[\s*(["'])([^"'\\\r\n]{1,${MAX_LITERAL_LENGTH}})\1\s*\]`,
+		String.raw`\bflags\s*(?:\?\.\s*)?\[\s*(["'])([^"'\\\r\n]{1,${MAX_LITERAL_LENGTH}})\1\s*\]`,
 		"g",
 	);
 	for (const match of code.matchAll(bracketPattern)) {

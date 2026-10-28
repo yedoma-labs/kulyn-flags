@@ -90,6 +90,22 @@ describe("findFlagKeysInSource", () => {
 		});
 	});
 
+	describe("optional chaining", () => {
+		it("finds optional calls and optional property access", () => {
+			const source = [
+				'isEnabled?.("a-call")',
+				'client?.isEnabled?.("b-call")',
+				"flags?.beta",
+				'flags?.["new-ui"]',
+			].join("\n");
+			expect(findFlagKeysInSource(source)).toEqual(new Set(["a-call", "b-call", "beta", "new-ui"]));
+		});
+
+		it("skips optional method calls and chained access on flags", () => {
+			expect(findFlagKeysInSource("flags?.get(); flags.a?.b; flags?.c?.d")).toEqual(new Set());
+		});
+	});
+
 	describe("template literals and comments", () => {
 		it("does not match calls written as template literals", () => {
 			expect(keysOf("isEnabled(`checkout.new-ui`)")).toEqual([]);
