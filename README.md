@@ -10,8 +10,6 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-6-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> **кулун** (*kulyn*) — Yakutian (Sakha) for "foal"
-
 A flag register with owners and expiry dates, plus hygiene checks you run in CI.
 It answers the question that runtime flag SDKs leave open: **who owns this flag, and is it safe to delete?**
 
