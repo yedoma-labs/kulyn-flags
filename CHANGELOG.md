@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/yedoma-labs/kulyn-flags/compare/v1.0.0...v1.0.1) (2026-10-28)
+
+
+### Bug Fixes
+
+* **scan:** ignore calls and flags access inside quoted strings ([5103f1d](https://github.com/yedoma-labs/kulyn-flags/commit/5103f1d5a99f6d66276bffbed2d97f247ad000a8))
+
 # 1.0.0 (2026-10-27)
 
 
