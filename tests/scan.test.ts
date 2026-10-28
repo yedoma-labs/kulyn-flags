@@ -96,6 +96,13 @@ describe("findFlagKeysInSource", () => {
 			expect(keysOf("getFlag(`x${suffix}`)")).toEqual([]);
 		});
 
+		it("does not match call-like text inside ordinary string literals", () => {
+			expect(keysOf(`log("use isEnabled('old.flag') instead")`)).toEqual([]);
+			expect(keysOf('const s = "flags.old";')).toEqual([]);
+			expect(keysOf('const s = "flags[\\"old\\"]";')).toEqual([]);
+			expect(keysOf('isEnabled("a"); const s = "getFlag(\'b\')";')).toEqual(["a"]);
+		});
+
 		it("does not match call-like text inside template literal text", () => {
 			expect(keysOf('const doc = `Use isEnabled("fake") here`;')).toEqual([]);
 			expect(keysOf("const doc = `flags.fake`;")).toEqual([]);

@@ -1,5 +1,17 @@
 # @yedoma-labs/kulyn-flags
 
+<picture>
+  <source media="(max-width: 640px)" srcset="https://raw.githubusercontent.com/yedoma-labs/assets/main/resized/banner-resized-mobile.png">
+  <img src="https://raw.githubusercontent.com/yedoma-labs/assets/main/resized/banner-resized.png" alt="Project Header">
+</picture>
+
+[![CI](https://github.com/yedoma-labs/kulyn-flags/actions/workflows/ci.yml/badge.svg)](https://github.com/yedoma-labs/kulyn-flags/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/@yedoma-labs/kulyn-flags.svg)](https://www.npmjs.com/package/@yedoma-labs/kulyn-flags)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6-blue.svg)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+> **kulyn** (*kulyn*) — Yakutian (Sakha) for (noch zu bestätigen)
+
 A flag register with owners and expiry dates, plus hygiene checks you run in CI.
 It answers the question that runtime flag SDKs leave open: **who owns this flag, and is it safe to delete?**
 
@@ -148,7 +160,7 @@ defineFlags(flags, {
 - calls with a string literal as the first argument: `isEnabled("key")`, `getFlag('key')`, `client.isEnabled("key", { fallback: false })`
 - property access: `flags.beta`, `flags["new-ui"]`
 
-It ignores text in comments and template literals (`` `isEnabled("x")` `` is not a call), but it does scan calls inside `${...}` placeholders. Template literals used as call arguments, such as ``getFlag(`key`)``, are not matched. Keys must be written as literals to be found.
+It ignores text in comments, in template literals (`` `isEnabled("x")` `` is not a call) and in quoted strings (`"flags.old"` is text, not a use). It does scan calls inside `${...}` placeholders. Template literals used as call arguments, such as ``getFlag(`key`)``, are not matched. Keys must be written as literals to be found.
 
 The scan runs in linear time and does not use nested quantifiers. Long inputs stay fast.
 

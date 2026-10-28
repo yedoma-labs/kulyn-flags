@@ -15,6 +15,8 @@ const MAX_LITERAL_LENGTH = 100;
  *
  * Text in comments, and template literals (backticks), are ignored, including `${...}`
  * placeholders in template literals that are not code. Calls inside `${...}` are still scanned.
+ * Calls and property access written inside a quoted string (`"isEnabled('x')"`) are ignored,
+ * because they are text, not code.
  * This function does not read files. The caller passes the text.
  *
  * Limitations: regex literals containing quotes are not understood. A quote inside a
@@ -25,7 +27,7 @@ export function findFlagKeysInSource(
 	options?: FindFlagKeysOptions,
 ): Set<string> {
 	const functions = options?.functions ?? DEFAULT_FUNCTIONS;
-	const code = maskNonCode(sourceText);
+	const { code, stringRanges } = maskWithStrings(sourceText);
 	const keys = new Set<string>();
 
 	if (functions.length > 0) {
@@ -37,6 +39,9 @@ export function findFlagKeysInSource(
 			"g",
 		);
 		for (const match of code.matchAll(callPattern)) {
+			if (isInRanges(stringRanges, match.index)) {
+				continue;
+			}
 			const key = match[2];
 			if (key !== undefined) {
 				keys.add(key);
@@ -47,6 +52,9 @@ export function findFlagKeysInSource(
 	// `flags.key` is only matched for identifier-like keys, and not for method calls like
 	// `flags.get(` or chained access like `flags.a.b`.
 	for (const match of code.matchAll(/\bflags\.([a-z][a-z0-9]*)(?![\w.-]|\s*\()/g)) {
+		if (isInRanges(stringRanges, match.index)) {
+			continue;
+		}
 		const key = match[1];
 		if (key !== undefined) {
 			keys.add(key);
@@ -58,6 +66,9 @@ export function findFlagKeysInSource(
 		"g",
 	);
 	for (const match of code.matchAll(bracketPattern)) {
+		if (isInRanges(stringRanges, match.index)) {
+			continue;
+		}
 		const key = match[2];
 		if (key !== undefined) {
 			keys.add(key);
@@ -76,8 +87,17 @@ type Frame = { kind: "template" } | { kind: "code"; braces: number; interpolatio
  * Runs in linear time: each character is visited a constant number of times.
  */
 export function maskNonCode(source: string): string {
+	return maskWithStrings(source).code;
+}
+
+/**
+ * Like `maskNonCode`, and also returns the ranges of quoted string literals as flat
+ * `[start, end, start, end, ...]` pairs (end is exclusive), in source order.
+ */
+function maskWithStrings(source: string): { code: string; stringRanges: number[] } {
 	const out = source.split("");
 	const n = source.length;
+	const stringRanges: number[] = [];
 	const frames: Frame[] = [{ kind: "code", braces: 0, interpolation: false }];
 
 	const mask = (from: number, to: number): void => {
@@ -132,7 +152,9 @@ export function maskNonCode(source: string): string {
 			while (j < n && source[j] !== ch && source[j] !== "\n") {
 				j += source[j] === "\\" ? 2 : 1;
 			}
-			i = source[j] === ch ? j + 1 : j;
+			const end = source[j] === ch ? j + 1 : j;
+			stringRanges.push(i, end);
+			i = end;
 		} else if (ch === "`") {
 			mask(i, i + 1);
 			frames.push({ kind: "template" });
@@ -153,7 +175,29 @@ export function maskNonCode(source: string): string {
 		}
 	}
 
-	return out.join("");
+	return { code: out.join(""), stringRanges };
+}
+
+/** True when `index` lies in one of the sorted `[start, end)` pairs of `ranges`. */
+function isInRanges(ranges: readonly number[], index: number | undefined): boolean {
+	if (index === undefined) {
+		return false;
+	}
+	let lo = 0;
+	let hi = ranges.length / 2 - 1;
+	while (lo <= hi) {
+		const mid = (lo + hi) >> 1;
+		const start = ranges[mid * 2] ?? 0;
+		const end = ranges[mid * 2 + 1] ?? 0;
+		if (index < start) {
+			hi = mid - 1;
+		} else if (index >= end) {
+			lo = mid + 1;
+		} else {
+			return true;
+		}
+	}
+	return false;
 }
 
 function escapeRegExp(value: string): string {
